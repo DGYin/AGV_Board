@@ -17,5 +17,5 @@ void M3508_gear_feedback_process(M3508_gear_t *kit)
 
 void M3508_gear_command_transmit(M3508_gear_t *kit, M3508_SINGLE_COMMAND_HOLD_t hold)
 {
-	M3508_set_single_motor_current(kit->parameter.bus, kit->parameter.ESC_ID, kit->parameter.bus->motor[kit->parameter.ESC_ID].command.torque_current_lsb, hold);
+	M3508_set_single_motor_current(kit->parameter.bus, kit->parameter.ESC_ID, kit->command.torque_current_lsb, hold);
 }

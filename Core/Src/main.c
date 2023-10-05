@@ -178,7 +178,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  M3508_set_single_motor_current(&M3508_bus_1, 1, 0xFF, SEND_COMMAND_NOW);
+	  //M3508_set_single_motor_current(&M3508_bus_1, 4, 0xFF, SEND_COMMAND_NOW);
+	  M3508_gear_set_torque_current_lsb(&example_M3508_gear, 0xFF, SEND_COMMAND_NOW);
 	  briter_encoder_request_tatal_angle(&briter_encoder);
 	  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
 	  HAL_Delay(100);

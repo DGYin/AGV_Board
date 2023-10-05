@@ -68,7 +68,7 @@ void M3508_set_single_motor_current(M3508_motor_bus_t *M3508_bus, uint8_t ESC_ID
     M3508_bus->motor[ESC_ID].command.torque_current_lsb = current;
     // Call the CAN transmission function to send the motor command
     if (hold == SEND_COMMAND_NOW)
-		M3508_command_transmit(&M3508_ctx, M3508_bus, (ESC_ID / 4 + 1));
+		M3508_command_transmit(&M3508_ctx, M3508_bus, (ESC_ID / 5 + 1));
 }
 
 /**
