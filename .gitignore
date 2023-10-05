@@ -34,3 +34,4 @@ Examples/
 ./AGV_Board/MDK-ARM/AGV_Board/*.d
 ./AGV_Board/MDK-ARM/AGV_Board/*.crf
 ./AGV_Board/MDK-ARM/AGV_Board/*.htm
+./AGV_Board/MDK-ARM/AGV_Board/*.__i
