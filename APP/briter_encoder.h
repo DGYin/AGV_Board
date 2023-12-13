@@ -27,9 +27,10 @@ BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_current_pos_mid_pos(briter_en
 BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_current_pos_specific_value(briter_encoder_t *encoder, uint32_t value);
 BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_current_pos_5round_value(briter_encoder_t *encoder);
 
+BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_parameter_init(briter_encoder_t *encoder, birter_encoder_parameter_t *init_struct);
+
 #if defined(briter_encoder_num_1)
 	extern briter_encoder_t briter_encoder;
-	void briter_encoder_parameter_init(void);
 #endif
 
 #ifdef __cplusplus

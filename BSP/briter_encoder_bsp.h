@@ -94,16 +94,16 @@ typedef struct
 typedef struct
 {
 	uint32_t								total_angle;
-	BRITER_ENCODER_CAN_BAUD_RATE_t			baud_rate;
-	BRITER_ENCODER_CALLBACK_MODE_t			call_back_mode;
-	uint16_t								call_back_period;
-	BRITER_ENCODER_INCREMENT_DIRECTION_t	increment_direction;
 	
 } briter_encoder_status_t;
 
 typedef struct
 {
-	uint16_t								CAN_ID;
+	uint32_t								CAN_ID;
+	BRITER_ENCODER_CAN_BAUD_RATE_t			baud_rate;
+	BRITER_ENCODER_CALLBACK_MODE_t			call_back_mode;
+	uint16_t								call_back_period;
+	BRITER_ENCODER_INCREMENT_DIRECTION_t	increment_direction;
 	/** customizable  **/
 	void *handle;	
 	

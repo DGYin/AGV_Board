@@ -40,20 +40,20 @@ void briter_encoder_Init(void)
         briter_encoder_CAN_TxHeaderStruct.RTR = CAN_RTR_DATA;
         briter_encoder_CAN_TxHeaderStruct.TransmitGlobalTime = DISABLE;
     #endif
-	briter_encoder_parameter_init();
 }
 
 /**
  * @brief 把预先设定好的编码器参数导入结构体中
  */
-void briter_encoder_parameter_init(void)
+BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_parameter_init(briter_encoder_t *encoder, birter_encoder_parameter_t *init_struct)
 {
 	#if defined(briter_encoder_num_1)
-		briter_encoder.status.baud_rate				= BRITER_ENCODER_SET_CAN_BAUD_RATE_1M;
-		briter_encoder.status.call_back_mode		= BRITER_ENCODER_SET_CALLBACK_REQUEST;
-		briter_encoder.status.increment_direction	= BRITER_ENCODER_INCREMENT_DIRECTION_CW;
-		briter_encoder.parameter.CAN_ID				= 0x0D;
+		encoder->parameter.baud_rate			= init_struct->baud_rate;
+		encoder->parameter.call_back_mode		= init_struct->call_back_mode;
+		encoder->parameter.increment_direction	= init_struct->increment_direction;
+		encoder->parameter.CAN_ID				= init_struct->CAN_ID;
 	#endif
+	return BRITER_ENCODER_COMMAND_OK;
 }
 
 BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_request_tatal_angle(briter_encoder_t *encoder)
@@ -105,7 +105,7 @@ BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_baud_rate(briter_encoder_t *e
 		uint8_t trans_data[5];
 		trans_data[0] = rate;
 		memcpy(&encoder->command.data, &trans_data, 5);
-		encoder->status.baud_rate = rate;
+		encoder->parameter.baud_rate = rate;
 	}
 	else return BRITER_ENCODER_COMMAND_WRONG_PARAMETER;
     // Call the CAN transmission function to send the encoder command
@@ -125,7 +125,7 @@ BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_callback_mode(briter_encoder_
 		uint8_t trans_data[5];
 		trans_data[0] = mode;
 		memcpy(&encoder->command.data, &trans_data, 5);
-		encoder->status.call_back_mode = mode;
+		encoder->parameter.call_back_mode = mode;
 	}
 	else return BRITER_ENCODER_COMMAND_WRONG_PARAMETER;
     // Call the CAN transmission function to send the encoder command
@@ -145,7 +145,7 @@ BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_callback_period(briter_encode
 		uint8_t trans_data[5];
 		memcpy(&trans_data[0], &period, 2);
 		memcpy(&encoder->command.data, &trans_data, 5);
-		encoder->status.call_back_period = period;
+		encoder->parameter.call_back_period = period;
 	}
 	else return BRITER_ENCODER_COMMAND_WRONG_PARAMETER;
     // Call the CAN transmission function to send the encoder command
@@ -179,7 +179,7 @@ BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_increment_direction(briter_en
 		uint8_t trans_data[5];
 		trans_data[0] = direction;
 		memcpy(&encoder->command.data, &trans_data, 5);
-		encoder->status.increment_direction = direction;
+		encoder->parameter.increment_direction = direction;
 	}
 	else return BRITER_ENCODER_COMMAND_WRONG_PARAMETER;
     // Call the CAN transmission function to send the encoder command

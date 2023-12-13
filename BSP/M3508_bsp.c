@@ -12,25 +12,30 @@
  * @param  data      返回的数据
  * @param  CAN_ID    CAN通信ID，用于确定是哪个电机发送的数据
  */
-void M3508_feedback_process(M3508_motor_bus_t *motor_bus, uint16_t CAN_ID, uint8_t data[])
+M3508_FEEDBACK_PROCESS_RETURN_T M3508_feedback_process(M3508_motor_bus_t *motor_bus, uint16_t CAN_ID, uint8_t data[])
 {
-	//判断是哪个电机
+	// 判断是哪个电机
 	uint8_t ESC_ID = CAN_ID - 0x200;
-	//先把数据存起来
+	
+	// 防止混入别的数据
+	if (ESC_ID<1 | ESC_ID>8) return M3508_FEEDBACK_PROCESS_NOT_3508_ID;
+	
+	// 先把数据存起来
 	motor_bus->motor[ESC_ID].feedback.LSB_rotor_position	= data[0]<<8 | data[1];
 	motor_bus->motor[ESC_ID].feedback.LSB_rotor_rpm			= data[2]<<8 | data[3];
 	motor_bus->motor[ESC_ID].feedback.LSB_torque_current	= data[4]<<8 | data[5];
 	motor_bus->motor[ESC_ID].feedback.LSB_tempreture		= data[6];
 	
- 	//需要单位转换的
+ 	// 需要单位转换的
 	motor_bus->motor[ESC_ID].status.rotor_position_deg	= M3508_from_lsb_to_position_deg(motor_bus->motor[ESC_ID].feedback.LSB_rotor_position);
-	motor_bus->motor[ESC_ID].status.rotor_position_rad	= m3508_from_lsb_to_position_rad(motor_bus->motor[ESC_ID].feedback.LSB_rotor_position);
-	motor_bus->motor[ESC_ID].status.torque_current		= m3508_from_lsb_to_torque_current(motor_bus->motor[ESC_ID].feedback.LSB_torque_current);
-	//不需要单位转换的
+	motor_bus->motor[ESC_ID].status.rotor_position_rad	= M3508_from_lsb_to_position_rad(motor_bus->motor[ESC_ID].feedback.LSB_rotor_position);
+	motor_bus->motor[ESC_ID].status.torque_current		= M3508_from_lsb_to_torque_current(motor_bus->motor[ESC_ID].feedback.LSB_torque_current);
+	// 不需要单位转换的
 	
 	motor_bus->motor[ESC_ID].status.rotor_rpm	= motor_bus->motor[ESC_ID].feedback.LSB_rotor_rpm;
 	motor_bus->motor[ESC_ID].status.tempreture	= motor_bus->motor[ESC_ID].feedback.LSB_tempreture;
 	
+	return M3508_FEEDBACK_PROCESS_OK;
 }
 
 
@@ -82,17 +87,17 @@ float M3508_from_lsb_to_position_deg(uint16_t lsb)
 	return ( lsb / 8191.f * 360.f );
 }
 
-float m3508_from_lsb_to_position_rad(uint16_t lsb)
+float M3508_from_lsb_to_position_rad(uint16_t lsb)
 {
 	return ( lsb / 8191.f * PI*2 );
 }
 
-float m3508_from_lsb_to_torque_current(uint16_t lsb)
+float M3508_from_lsb_to_torque_current(uint16_t lsb)
 {
 	return ( (lsb-16384) / 16384.f * 20.f );
 }
 
-float m3508_from_torque_current_to_torque(float current)
+float M3508_from_torque_current_to_torque(float current)
 {
 	return ( current * M3508_TORQUE_COEFFICIENT);
 }

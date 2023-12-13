@@ -20,13 +20,13 @@ typedef enum
 
 typedef struct
 {
-	float	reduction_rate_output_devidedby_motor; //电机齿轮箱齿比
+	float	reduction_rate_output_devidedby_motor; // 电机齿轮箱齿比
 } motor_kit_t;
 
 typedef struct
 {
-	float			reduction_rate_drive_devidedby_motor_kit; //传动装置传动比
-	DIRECTION_FLAG	direction_flag; //经过齿传动装置后，航向电机与舵轮转动方向是否相同
+	float			reduction_rate_drive_devidedby_motor_kit; // 传动装置传动比
+	DIRECTION_FLAG	direction_flag; // 经过齿传动装置后，航向电机与舵轮转动方向是否相同
 } drive_gear_t;
 typedef struct
 {

@@ -19,13 +19,21 @@ extern "C" {
 #include "M3508_bsp.h"
 
 
+typedef enum
+{
+	M3508_OK,
+	M3508_ERROR
+}M3508_RETURN_T;
+	
+
+
 
 void M3508_Init(void);
 void M3508_set_single_motor_current(M3508_motor_bus_t *M3508_bus, uint8_t ESC_ID, uint16_t current, M3508_SINGLE_COMMAND_HOLD_t hold);
 void M3508_set_four_motor_current(M3508_motor_bus_t *M3508_bus, uint8_t half, uint16_t current[]);
 void M3508_set_all_motor_current(M3508_motor_bus_t *M3508_bus, uint16_t current[]);
 
-void M3508_feedback_handler(M3508_motor_bus_t *M3508_bus, uint16_t CAN_ID, uint8_t data[]);
+M3508_RETURN_T M3508_feedback_handler(M3508_motor_bus_t *M3508_bus, uint16_t CAN_ID, uint8_t data[]);
 
 #if defined(STM32F105) | (STM32F407)
     extern M3508_motor_bus_t M3508_bus_1;

@@ -58,43 +58,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_CAN1_Filter_Config(void)
-{
-	CAN_FilterTypeDef CAN_FilterStructure;
-	CAN_FilterStructure.FilterActivation = ENABLE;
-	CAN_FilterStructure.FilterBank = 1;
-	CAN_FilterStructure.FilterMode = CAN_FILTERMODE_IDMASK;
-	CAN_FilterStructure.FilterScale = CAN_FILTERSCALE_32BIT;
-	CAN_FilterStructure.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-	CAN_FilterStructure.FilterIdHigh = 0x0000;
-	CAN_FilterStructure.FilterIdLow = 0x0000;
-	CAN_FilterStructure.FilterMaskIdHigh = 0x0000;
-	CAN_FilterStructure.FilterMaskIdLow = 0x0000;
-	
-	HAL_CAN_ConfigFilter(&hcan1,&CAN_FilterStructure);
-	HAL_CAN_ConfigFilter(&hcan2,&CAN_FilterStructure);
-}
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-	CAN_RxHeaderTypeDef CAN_RxHeaderStruct;
-	uint8_t rxdata[8];
-	int16_t speed,*gdata,current;
-	float angle;
-	if(hcan==&hcan1)
-	{
-		HAL_CAN_GetRxMessage(&hcan1,CAN_RX_FIFO0,&CAN_RxHeaderStruct,rxdata);
-		briter_encoder_feedback_handler(&briter_encoder, rxdata);
-		M3508_feedback_handler(&M3508_bus_1, CAN_RxHeaderStruct.StdId, rxdata);
-		M3508_gear_feedback_handler(&example_M3508_gear);
-		
-		switch(CAN_RxHeaderStruct.StdId)
-		{
-			
-		}
-	}
-
-}
 
 
 
@@ -160,13 +124,12 @@ int main(void)
   MX_CAN2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_CAN1_Filter_Config();
+  platform_filtter_config_setting();
   HAL_CAN_Start(&hcan1);
   HAL_CAN_Start(&hcan2);
   HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING); 
   HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING); 
   
-  M3508_gear_init();
   briter_encoder_Init();
 
   /* USER CODE END 2 */
