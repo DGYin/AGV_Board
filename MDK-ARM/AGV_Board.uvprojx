@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F105xC</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\BSP;..\APP</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\BSP;..\APP;..\task</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -568,6 +568,11 @@
               <FileName>task_scheduler.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\task_scheduler.c</FilePath>
+            </File>
+            <File>
+              <FileName>SW_control_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\task\SW_control_task.c</FilePath>
             </File>
           </Files>
         </Group>

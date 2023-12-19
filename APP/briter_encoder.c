@@ -25,14 +25,14 @@
 static uint8_t platform_trans(void *handle, uint16_t CAN_ID, uint8_t aData[]);
 
 briter_encoder_ctx_t briter_encoder_ctx;
-void briter_encoder_Init(void)
+void briter_encoder_Init(briter_encoder_t *encoder)
 {
     /* Initialize transmission functions */
     briter_encoder_ctx.tx_cmd = platform_trans;
     
     /* Initialize CAN driver interface */
     #if defined(STM32F105) | (STM32F407)
-        briter_encoder.parameter.handle = &BRITER_ENCODER_BUS_1;
+        encoder->parameter.handle = &BRITER_ENCODER_BUS_1;
 
         briter_encoder_CAN_TxHeaderStruct.ExtId = 0;
         briter_encoder_CAN_TxHeaderStruct.DLC = 8;

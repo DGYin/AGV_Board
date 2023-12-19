@@ -13,8 +13,7 @@ extern "C" {
 #include "briter_encoder_bsp.h"
 
 
-
-void briter_encoder_Init(void);
+void briter_encoder_Init(briter_encoder_t *encoder);
 void briter_encoder_feedback_handler(briter_encoder_t *encoder, uint8_t data[]);
 BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_request_tatal_angle(briter_encoder_t *encoder);
 BRITER_ENCODER_COMMAND_RETURN_t briter_encoder_set_CAN_ID(briter_encoder_t *encoder, uint8_t CAN_ID);

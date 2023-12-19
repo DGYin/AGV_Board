@@ -28,7 +28,7 @@ typedef enum
 
 
 
-void M3508_Init(void);
+void M3508_Init(M3508_motor_bus_t *M3508_bus, void *bus);
 void M3508_set_single_motor_current(M3508_motor_bus_t *M3508_bus, uint8_t ESC_ID, uint16_t current, M3508_SINGLE_COMMAND_HOLD_t hold);
 void M3508_set_four_motor_current(M3508_motor_bus_t *M3508_bus, uint8_t half, uint16_t current[]);
 void M3508_set_all_motor_current(M3508_motor_bus_t *M3508_bus, uint16_t current[]);

@@ -24,6 +24,7 @@
 #include "M3508.h"
 #include "M3508_gear.h"
 #include "briter_encoder.h"
+#include "SW_control_task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -69,14 +70,14 @@ void canTX(void)
 	uint8_t status;
 	CAN_TxHeaderTypeDef CAN_TxHeaderStruct;
 	uint32_t  pTxMailbox;
-	
+
     CAN_TxHeaderStruct.StdId=0x200;
     CAN_TxHeaderStruct.ExtId=0;
     CAN_TxHeaderStruct.DLC=8;
     CAN_TxHeaderStruct.IDE=CAN_ID_STD;
     CAN_TxHeaderStruct.RTR=CAN_RTR_DATA;
     CAN_TxHeaderStruct.TransmitGlobalTime=DISABLE;
-	
+
 	data[0] = 0xFF;
 	data[1] = 0x01;
 	data[2] = 0xFF;
@@ -96,6 +97,7 @@ void canTX(void)
   * @brief  The application entry point.
   * @retval int
   */
+uint32_t tick_cnt;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -127,11 +129,10 @@ int main(void)
   platform_filtter_config_setting();
   HAL_CAN_Start(&hcan1);
   HAL_CAN_Start(&hcan2);
-  HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING); 
-  HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING); 
-  
-  briter_encoder_Init();
+  HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+  HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);
 
+  SW_control_task_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -141,12 +142,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  //M3508_set_single_motor_current(&M3508_bus_1, 4, 0xFF, SEND_COMMAND_NOW);
-	  M3508_gear_set_torque_current_lsb(&example_M3508_gear, 0, SEND_COMMAND_NOW);
-	  briter_encoder_request_tatal_angle(&briter_encoder);
-	  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-	  HAL_Delay(100);
-	  
+		// 目前还懒得丢到定时器中断里
+		TASK_SCHEDULER();
+		HAL_Delay(4);
+		tick_cnt++;
   }
   /* USER CODE END 3 */
 }

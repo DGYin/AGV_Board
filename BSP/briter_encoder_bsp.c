@@ -16,10 +16,11 @@ uint8_t briter_encoder_feedback_process(briter_encoder_t *encoder, uint8_t data[
 	switch( encoder->feedback.command_code)
 	{
 		case GET_TOTAL_ANGLE:
-			memcpy( &encoder->status.total_angle, &encoder->feedback.data, cpy_length);
+			memcpy(&encoder->status.last_total_angle, &encoder->status.total_angle,		sizeof(encoder->status.total_angle)); // 存好上次的角度
+			memcpy(&encoder->status.total_angle		, &encoder->feedback.data, 			sizeof(encoder->status.total_angle)); // 写入当前的角度
 			return BRITER_ENCODER_FEEDBACK_PROCESS_OK;
 			break;
-		default: 
+		default:
 			if (encoder->feedback.data[0] != 0)
 				return BRITER_ENCODER_FEEDBACK_PROCESS_RETURN_ERR;
 			else return BRITER_ENCODER_FEEDBACK_PROCESS_OK;

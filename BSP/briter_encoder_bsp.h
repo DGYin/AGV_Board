@@ -24,7 +24,7 @@ typedef enum
 	BRITER_ENCODER_FEEDBACK_PROCESS_OK = 0x00,
 	BRITER_ENCODER_FEEDBACK_PROCESS_RETURN_ERR,
 	BRITER_ENCODER_FEEDBACK_PROCESS_NO_SUCH_CODE,
-	
+
 } BRITER_ENCODER_FEEDBACK_PROCESS_RETURN_t;
 
 typedef enum
@@ -46,7 +46,7 @@ typedef enum
 	SET_CURRENT_POS_MID_POS			= 0x0C,
 	SET_CURRENT_POS_SPECIFIC_VALUE	= 0x0D,
 	SET_CURRENT_POS_5ROUND_VALUE	= 0x0F
-	
+
 } BRITER_ENCODER_COMMAND_CODE_t;
 
 typedef enum
@@ -56,21 +56,21 @@ typedef enum
 	BRITER_ENCODER_SET_CAN_BAUD_RATE_250K,
 	BRITER_ENCODER_SET_CAN_BAUD_RATE_125K,
 	BRITER_ENCODER_SET_CAN_BAUD_RATE_100K
-	
+
 } BRITER_ENCODER_CAN_BAUD_RATE_t;
 
 typedef enum
 {
 	BRITER_ENCODER_SET_CALLBACK_REQUEST	= 0x00,
 	BRITER_ENCODER_SET_CALLBACK_PERIODICAL	= 0xAA
-	
+
 } BRITER_ENCODER_CALLBACK_MODE_t;
 
 typedef enum
 {
 	BRITER_ENCODER_INCREMENT_DIRECTION_CW = 0x00,
 	BRITER_ENCODER_INCREMENT_DIRECTION_CCW
-	
+
 } BRITER_ENCODER_INCREMENT_DIRECTION_t;
 
 typedef struct
@@ -79,7 +79,7 @@ typedef struct
 	uint8_t encoder_address;
 	uint8_t command_code;
 	uint8_t data[5];
-	
+
 } briter_encoder_command_t;
 
 typedef struct
@@ -88,13 +88,14 @@ typedef struct
 	uint8_t encoder_address;
 	uint8_t command_code;
 	uint8_t data[5];
-	
+
 } briter_encoder_feedback_t;
 
 typedef struct
 {
-	uint32_t								total_angle;
-	
+	uint32_t	total_angle;
+	uint32_t	last_total_angle;
+
 } briter_encoder_status_t;
 
 typedef struct
@@ -105,8 +106,8 @@ typedef struct
 	uint16_t								call_back_period;
 	BRITER_ENCODER_INCREMENT_DIRECTION_t	increment_direction;
 	/** customizable  **/
-	void *handle;	
-	
+	void *handle;
+
 } birter_encoder_parameter_t;
 
 typedef struct
@@ -121,7 +122,7 @@ typedef struct
 {
 	/** essential  **/
 	briter_encoder_tx_ptr	tx_cmd;
-	
+
 	/** customizable  **/
 	void *handle;
 } briter_encoder_ctx_t;

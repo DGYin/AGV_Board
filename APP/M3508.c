@@ -32,16 +32,14 @@ static uint8_t platform_get_msg(void *handle, uint16_t *CAN_ID, uint8_t aData[])
  * the transmission functions and CAN interface.
  */
 M3508_ctx_t M3508_ctx;
-void M3508_Init(void)
+
+void M3508_Init(M3508_motor_bus_t *M3508_bus, void *bus)
 {
     /* Initialize transmission functions */
     M3508_ctx.tx_cmd = platform_trans;
-    
     /* Initialize CAN driver interface */
     #if defined(STM32F105) | (STM32F407)
-        M3508_bus_1.handle = &MOTOR_BUS_1;
-        M3508_bus_2.handle = &MOTOR_BUS_2;
-        
+        M3508_bus->handle = bus;
         M3508_CAN_TxHeaderStruct.ExtId = 0;
         M3508_CAN_TxHeaderStruct.DLC = 8;
         M3508_CAN_TxHeaderStruct.IDE = CAN_ID_STD;

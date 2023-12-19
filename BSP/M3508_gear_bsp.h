@@ -14,6 +14,7 @@ extern "C" {
 
 typedef struct
 {
+	void *handle;
 	float				resistance_torque;
 	M3508_motor_bus_t	*bus;
 	uint8_t 			ESC_ID;
@@ -36,11 +37,11 @@ typedef struct
 
 typedef struct
 {
-	uint16_t	current_rotor_position_lsb;
-	uint16_t	last_rotor_position_lsb;
+	int16_t	current_rotor_position_lsb;
+	int16_t	last_rotor_position_lsb;
 	
-	uint16_t	current_rotor_rpm;
-	uint16_t	rotor_torque_current;
+	int16_t	current_rotor_rpm;
+	int16_t	rotor_torque_current;
 } M3508_gear_feedback_t;
 
 
@@ -48,7 +49,7 @@ typedef struct
 {
 	float		torque;
 	float		torque_current;
-	uint16_t	torque_current_lsb;
+	int16_t	torque_current_lsb;
 } M3508_gear_command_t;
 
 

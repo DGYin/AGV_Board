@@ -20,10 +20,10 @@ typedef enum
 } M3508_SINGLE_COMMAND_HOLD_t;
 typedef struct
 {
-	uint16_t	LSB_rotor_position;
-	uint16_t	LSB_rotor_rpm;
-	uint16_t	LSB_torque_current;
-	uint8_t		LSB_tempreture;
+	int16_t	LSB_rotor_position;
+	int16_t	LSB_rotor_rpm;
+	int16_t	LSB_torque_current;
+	uint8_t	LSB_tempreture;
 	
 } M3508_feedback_t;
 
@@ -31,7 +31,7 @@ typedef struct
 {
 	float	rotor_position_rad;
 	float	rotor_position_deg;
-	uint16_t		rotor_rpm;
+	int16_t		rotor_rpm;
 	int		torque_current;
 	int		tempreture;
 	
@@ -39,9 +39,9 @@ typedef struct
 
 typedef struct
 {
-	float		torque;
-	float		torque_current;
-	uint16_t	torque_current_lsb;
+	float	torque;
+	float	torque_current;
+	int16_t	torque_current_lsb;
 } M3508_command_t;
 
 typedef struct

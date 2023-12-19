@@ -1,7 +1,7 @@
 #include "can_bsp.h"
 #include "briter_encoder.h"
 #include "M3508_gear.h"
-
+#include "SW_control_task.h"
 #if defined(STM32F105) | defined(STM32F407)
 	#include "can.h"
 #endif
@@ -18,12 +18,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 		//briter_encoder_feedback_handler(&briter_encoder, rxdata);
 		M3508_feedback_handler(&M3508_bus_1, CAN_RxHeaderStruct.StdId, rxdata);
-		M3508_gear_feedback_handler(&example_M3508_gear);
+		M3508_gear_feedback_handler(&steering_wheel.directive_part.motor.M3508_kit);
+		M3508_gear_feedback_handler(&steering_wheel.motion_part.motor.M3508_kit);
+		
 		
 		// 因为switch只能用常量，所以改用If
-		if (CAN_RxHeaderStruct.StdId == briter_encoder.parameter.CAN_ID)
+		if (CAN_RxHeaderStruct.StdId == steering_wheel.directive_part.encoder.briter_encoder.parameter.CAN_ID)
 		{
-			briter_encoder_feedback_handler(&briter_encoder, rxdata);
+			briter_encoder_feedback_handler(&steering_wheel.directive_part.encoder.briter_encoder, rxdata);
 		}
 		
 
