@@ -609,6 +609,11 @@
               <FileType>1</FileType>
               <FilePath>..\BSP\pack_handler_bsp.c</FilePath>
             </File>
+            <File>
+              <FileName>steering_communication_bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\steering_communication_bsp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
