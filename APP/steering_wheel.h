@@ -12,8 +12,15 @@ extern "C" {
 #define DIRECTIVE_ENCODER_BRITER_ENCODER
 #define MOTION_MOTOR_M3508
 
+
+
 /* SYSTEM Settings, DONT CHANGE EASILY! --------------------------------------*/
 #define PROTOCOL_POSITION_LSBS		8191	// 统一的角度分辨率。从零点开始CW方向，将角度等分为 PROTOCOL_POSITION_LSBS 份。
+#define MAXIMUM_STEERING_HANDLE_NUM	4
+
+/* CRITICAL Settings, NEVER CHANGE! ------------------------------------------*/
+#define STEERING_ILLEGAL_HANDLER NULL
+
 /* Includes ------------------------------------------------------------------*/
 
 /** @addtogroup stdint
@@ -37,6 +44,7 @@ extern "C" {
 typedef enum
 {
 	STEERING_WHEEL_OK,
+	STEERING_WHEEL_ERROR
 } STEERING_WHEEL_RETURN_T;
 
 typedef enum
@@ -85,6 +93,7 @@ typedef struct
 
 typedef struct
 {
+	uint8_t CANID;
 	STEERING_WHEEL_ENABLE_T				enable;
 	STEERING_WHEEL_ARC_OPTIMIZATION_T	arc_optimization;
 }steering_wheel_parameter_t;
@@ -145,6 +154,11 @@ typedef struct
 	motion_part_t		motion_part;
 }steering_wheel_t;
 
+typedef struct
+{
+	steering_wheel_t	*handle;
+	uint8_t				CANID;
+}steering_handle_list_t;
 
 STEERING_WHEEL_RETURN_T Steering_Wheel_MotorFeedbackUpdate(steering_wheel_t *steering_wheel);
 

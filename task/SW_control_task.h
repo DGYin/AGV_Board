@@ -10,6 +10,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "steering_wheel.h"
+#include "steering_communication.h"
 
 void SW_control_task(void);
 void SW_control_task_init(void);

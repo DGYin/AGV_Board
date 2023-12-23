@@ -1,8 +1,11 @@
 #include "steering_wheel.h"
-
+#include "steering_communication.h"
 #if defined(STM32F105) | defined(STM32F407)
 	#include "can.h"
 #endif
+
+
+
 
 /**
  * @brief 初始化舵轮的PID参数。
@@ -14,8 +17,8 @@ void Steering_Wheel_PID_HandleInit(steering_wheel_t *steering_wheel)
 	memset(&steering_wheel->directive_part.motor.PID_Handles	, 0, sizeof(steering_wheel->directive_part.motor.PID_Handles));
 	memset(&steering_wheel->motion_part.motor.PID_Handles		, 0, sizeof(steering_wheel->motion_part.motor.PID_Handles));
 	// 转向电机角度环 默认Kp Ki Kd 写入
-	steering_wheel->directive_part.motor.PID_Handles.position_loop_handle.hDefKpGain = 1.f;
-	steering_wheel->directive_part.motor.PID_Handles.position_loop_handle.hDefKiGain = 1.f;
+	steering_wheel->directive_part.motor.PID_Handles.position_loop_handle.hDefKpGain = 1;
+	steering_wheel->directive_part.motor.PID_Handles.position_loop_handle.hDefKiGain = 1;
 	steering_wheel->directive_part.motor.PID_Handles.position_loop_handle.hUpperOutputLimit = 1000;
 	steering_wheel->directive_part.motor.PID_Handles.position_loop_handle.hLowerOutputLimit = -1000;
 	// 转向电机速度环 默认Kp Ki Kd 写入
@@ -26,9 +29,9 @@ void Steering_Wheel_PID_HandleInit(steering_wheel_t *steering_wheel)
 	steering_wheel->directive_part.motor.PID_Handles.velocity_loop_handle.wUpperIntegralLimit = 1000;
 	steering_wheel->directive_part.motor.PID_Handles.velocity_loop_handle.wLowerIntegralLimit = -1000;
 	// 动力电机速度环 默认Kp Ki Kd 写入
-	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hDefKpGain = 0.76;
-	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hDefKiGain = 0.00265;
-	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hDefKdGain = 0.1;
+	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hDefKpGain = 1;
+	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hDefKiGain = 1;
+	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hDefKdGain = 0;
 	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hUpperOutputLimit = 1000;
 	steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle.hLowerOutputLimit = -1000;
 	// 调用PID结构体初始化函数，数据写入PID结构体中
@@ -36,6 +39,25 @@ void Steering_Wheel_PID_HandleInit(steering_wheel_t *steering_wheel)
 	PID_HandleInit(&steering_wheel->directive_part.motor.PID_Handles.velocity_loop_handle);
 	PID_HandleInit(&steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle);
 }
+
+/**
+ * @brief 初始化舵轮列表，此列表可以用于已知舵轮的某些参数 （如 CAN ID） 情况下返回舵轮的句柄。
+ * @param steering_wheel 舵轮的句柄
+ * @return 如果成功返回 STEERING_WHEEL_OK。
+ */
+steering_handle_list_t steering_handle_list[MAXIMUM_STEERING_HANDLE_NUM];
+STEERING_WHEEL_RETURN_T Steering_HandleListAdd(steering_wheel_t *steering)
+{
+	for (int i=0; i<MAXIMUM_STEERING_HANDLE_NUM; i++) // 从表头开始找有没有空位
+		if (steering_handle_list[i].handle == 0)
+		{
+			steering_handle_list[i].handle	= steering;
+			steering_handle_list[i].CANID	= steering->parameter.CANID;
+			return STEERING_WHEEL_OK;
+		}
+	return STEERING_WHEEL_ERROR;
+}
+
 /**
  * @brief 初始化舵轮组件，包括电机、齿轮和编码器。
  * @param steering_wheel 舵轮的句柄
@@ -43,6 +65,9 @@ void Steering_Wheel_PID_HandleInit(steering_wheel_t *steering_wheel)
  */
 STEERING_WHEEL_RETURN_T Steering_Wheel_HandleInit(steering_wheel_t *steering_wheel)
 {
+	// 初始化舵轮列表
+	memset(&steering_handle_list, NULL, sizeof(steering_handle_list));
+	
 	// 初始化PID结构体
 	Steering_Wheel_PID_HandleInit(steering_wheel);
 	#if defined(DIRECTIVE_MOTOR_M3508) | defined(MOTION_MOTOR_M3508)
@@ -78,8 +103,22 @@ STEERING_WHEEL_RETURN_T Steering_Wheel_HandleInit(steering_wheel_t *steering_whe
 		steering_wheel->directive_part.encoder.parameter.encoder_rounds_per_part_round	= 5;
 		steering_wheel->directive_part.encoder.parameter.lsbs_per_part_round = steering_wheel->directive_part.encoder.parameter.lsbs_per_encoder_round*steering_wheel->directive_part.encoder.parameter.encoder_rounds_per_part_round;
 	#endif
+	
+	// 初始化舵轮 CAN ID
+	steering_wheel->parameter.CANID = DEFAULT_STEERING_CAN_ID;
+	if (Steering_HandleListAdd(steering_wheel))
+		return STEERING_WHEEL_ERROR;
 	return STEERING_WHEEL_OK;
 }
+
+steering_wheel_t *Steering_FindSteeringHandle_via_CANID(uint8_t CANID)
+{
+	for (int i=0; i<MAXIMUM_STEERING_HANDLE_NUM; i++)
+		if (steering_handle_list[i].CANID == CANID)
+			return steering_handle_list[i].handle;
+	return STEERING_ILLEGAL_HANDLER;
+}
+
 /**
  * @brief 更新电机和编码器的原始反馈信息。
  * @param steering_wheel 舵轮的句柄

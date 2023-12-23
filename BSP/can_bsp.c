@@ -31,6 +31,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 
 	}
+	if (hcan==&hcan2)
+	{
+		if (CAN_RxHeaderStruct.IDE == CAN_ID_EXT)
+			steering_communication_rx_handler(CAN_RxHeaderStruct.ExtId, rxdata);
+	}
 
 }
 
