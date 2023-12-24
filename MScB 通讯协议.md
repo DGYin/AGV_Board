@@ -152,18 +152,20 @@ ADD_SUBSCRIBE_VALUE作用：订阅舵轮的某项数据
 |             0x03              | 动力电机转矩电流 LSB | int16_t:13 |
 |             0x04              | 转向电机转矩电流 LSB | int16_t:13 |
 
-|  数据区 1 区段  |                      内容                      | 数据类型 |
-| :-------------: | :--------------------------------------------: | :------: |
-| Byte 7 ~ Byte 6 |   content_2_offset_id对应订阅内容的回传次数    | uint16_t |
-| Byte 5 ~ Byte 4 | content_2_offset_id对应订阅内容的回传周期 (ms) | uint16_t |
-| Byte 3 ~ Byte 2 |   content_1_offset_id对应订阅内容的回传次数    | uint16_t |
-| Byte 1 ~ Byte 0 | content_1_offset_id对应订阅内容的回传周期 (ms) | uint16_t |
+|  数据区 1 区段  |                       内容                       | 数据类型 |
+| :-------------: | :----------------------------------------------: | :------: |
+| Byte 7 ~ Byte 6 |    content_2_offset_id对应订阅内容的回传次数     | uint16_t |
+| Byte 5 ~ Byte 4 | content_2_offset_id对应订阅内容的回传周期 (tick) | uint16_t |
+| Byte 3 ~ Byte 2 |    content_1_offset_id对应订阅内容的回传次数     | uint16_t |
+| Byte 1 ~ Byte 0 | content_1_offset_id对应订阅内容的回传周期 (tick) | uint16_t |
 
 > 当回传次数为0时，表示对应订阅内容回传次数为无限。
 >
 > 订阅内容最多可以有8项，订阅内容不能重复。
 >
 > 默认先尝试订阅content_1_offset_id对应订阅内容，再尝试订阅content_2_offset_id对应订阅内容。
+>
+> tick 由 MScB调度任务的速度决定。
 
 ##### 响应数据
 
@@ -175,7 +177,7 @@ ADD_SUBSCRIBE_VALUE作用：订阅舵轮的某项数据
 
 |          数据区段          |              内容               |   数据类型   |
 | :------------------------: | :-----------------------------: | :----------: |
-|           cmd_id           |              0x0A               |  uint8_t:5   |
+|           cmd_id           |              0x1E               |  uint8_t:5   |
 | 数据区 2 的 Bit 15 ~ Bit 8 | content_2_offset_id（详见前述） |   uint8_t    |
 | 数据区 2 的 Bit 7 ~ Bit 0  | content_1_offset_id（详见前述） |   uint8_t    |
 |          目标 ID           |            舵轮的 ID            |   uint8_t    |

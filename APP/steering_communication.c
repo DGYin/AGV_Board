@@ -433,6 +433,7 @@ STEERING_COMMUNICATION_RETURN_T steering_communication_SubscribeList_Scheduler(s
 			// 发送完要清空数据区
 			memset(&pack.data1, 0, sizeof(pack.data1)); 
 			memset(&pack.data2, 0, sizeof(pack.data2)); 
+			fill_cnt = 0; // 发送完以后清空计数
 		}
 	}
 	if (fill_cnt) // 遍历完 ，还有没有发送的包
