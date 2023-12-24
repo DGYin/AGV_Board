@@ -175,7 +175,7 @@ steering_communication_pack_t steering_communication_SET_PID_PARAMETER_handler(s
 	用于初始化订阅列表
 */
 steering_communication_subscribe_list_unit_t steering_communication_subscribe_list[SUBSCRIBE_LIST_MAXIMUM_LENGTH];
-STEERING_COMMUNICATION_RETURN_T Steering_Communication_SubscribeList_Init()
+STEERING_COMMUNICATION_RETURN_T Steering_Communication_SubscribeList_Init(void)
 {
 	memset(&steering_communication_subscribe_list, 0, sizeof(steering_communication_subscribe_list));
 	return STEERING_COMMUNICATION_OK;
@@ -217,7 +217,7 @@ STEERING_COMMUNICATION_RETURN_T steering_communication_SubscribeList_TryIncert(s
 			memcpy(&list[try_incert2].param, &param, sizeof(param));
 			memcpy(&list[try_incert2].remained_ticks, &param.subscribe_times, 2);
 			if (!param.subscribe_times)
-				list[try_incert2].subscribe_period_infinite_flag = 1;
+				list[try_incert2].subscribe_times_infinite_flag = 1;
 			return STEERING_COMMUNICATION_SUBCRIBE_LIST_OVERWRITED;
 		}
 		else // 没订阅过
@@ -225,7 +225,7 @@ STEERING_COMMUNICATION_RETURN_T steering_communication_SubscribeList_TryIncert(s
 			memcpy(&list[try_incert1].param, &param, sizeof(param));
 			memcpy(&list[try_incert1].remained_ticks, &param.subscribe_times, 2);
 			if (!param.subscribe_times)
-				list[try_incert1].subscribe_period_infinite_flag = 1;
+				list[try_incert1].subscribe_times_infinite_flag = 1;
 			return STEERING_COMMUNICATION_OK;
 		}
 	}
@@ -296,7 +296,7 @@ steering_communication_pack_t steering_communication_ADD_SUBSCRIBE_VALUE_handler
 
 
 /*
-	用于尝试将某一待订阅内容插入订阅消息列表
+	用于尝试将某一待订阅内容剔除出订阅消息列表
 */
 STEERING_COMMUNICATION_RETURN_T steering_communication_SubscribeList_TryDelete(steering_communication_subscribe_list_unit_t *list, SUBSCRIBE_CONTENT_X_OFFSET_ID_t id)
 {
@@ -406,13 +406,13 @@ STEERING_COMMUNICATION_RETURN_T steering_communication_SubscribeList_Scheduler(s
 		{
 			if (steering_communication_subscribe_list[i].remained_ticks-1 == 0) // 时间调度，如果到了一个周期
 			{
-				if (steering_communication_subscribe_list[i].subscribe_period_infinite_flag || steering_communication_subscribe_list[i].remained_times) // 如果是无限发送；或不是无限发送，但还有次数
+				if (steering_communication_subscribe_list[i].subscribe_times_infinite_flag || steering_communication_subscribe_list[i].remained_times) // 如果是无限发送；或不是无限发送，但还有次数
 				{
 					// 复制数据
 					memcpy(&pack.data1 + fill_cnt*4,	steering_communication_subscribe_list[i].param.pValueAdd,	1);
 					memcpy(&pack.data2 + fill_cnt,		&steering_communication_subscribe_list[i].param.content_id, 1);
 					// 不是无限发送，就要控制次数
-					if (!steering_communication_subscribe_list[i].subscribe_period_infinite_flag) 
+					if (!steering_communication_subscribe_list[i].subscribe_times_infinite_flag) 
 						steering_communication_subscribe_list[i].remained_times--;
 					fill_cnt++; // 标志已经填充
 				}

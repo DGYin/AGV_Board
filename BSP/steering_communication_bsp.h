@@ -66,7 +66,7 @@ typedef struct
 {
 	uint16_t			remained_times;
 	uint16_t			remained_ticks;
-	uint8_t				subscribe_period_infinite_flag;
+	uint8_t				subscribe_times_infinite_flag;
 	subscribe_param_t	param;
 }steering_communication_subscribe_list_unit_t;
 
