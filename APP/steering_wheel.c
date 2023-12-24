@@ -57,7 +57,18 @@ STEERING_WHEEL_RETURN_T Steering_HandleListAdd(steering_wheel_t *steering)
 		}
 	return STEERING_WHEEL_ERROR;
 }
-
+/**
+ * @brief 在舵轮列表中确认是否有某个舵轮的句柄，确保句柄合法性
+ * @param steering_wheel 舵轮的句柄
+ * @return 如果成功返回 STEERING_WHEEL_OK。
+ */
+STEERING_WHEEL_RETURN_T Steering_CheckHandleLegitimacy(steering_wheel_t *steering)
+{
+	for (int i=0; i<MAXIMUM_STEERING_HANDLE_NUM; i++) // 从表头开始找
+		if (steering_handle_list[i].handle == steering)
+			return STEERING_WHEEL_OK;
+		return STEERING_WHEEL_ILLEGAL_HANDLE; // 句柄找不到，不合法
+}
 /**
  * @brief 初始化舵轮组件，包括电机、齿轮和编码器。
  * @param steering_wheel 舵轮的句柄
@@ -116,7 +127,7 @@ steering_wheel_t *Steering_FindSteeringHandle_via_CANID(uint8_t CANID)
 	for (int i=0; i<MAXIMUM_STEERING_HANDLE_NUM; i++)
 		if (steering_handle_list[i].CANID == CANID)
 			return steering_handle_list[i].handle;
-	return STEERING_ILLEGAL_HANDLER;
+	return STEERING_ILLEGAL_HANDLE;
 }
 
 /**
@@ -138,7 +149,7 @@ STEERING_WHEEL_RETURN_T Steering_Wheel_MotorAndEncoderFeedbackUpdate(steering_wh
 		dt = steering_wheel->directive_part.encoder.feedback.get_tick - steering_wheel->directive_part.encoder.feedback.last_get_tick;
 		dw = steering_wheel->directive_part.encoder.briter_encoder.status.total_angle - steering_wheel->directive_part.encoder.briter_encoder.status.last_total_angle;
 		steering_wheel->directive_part.encoder.feedback.speed = dw / dt;
-		steering_wheel->directive_part.encoder.feedback.speed = steering_wheel->directive_part.motor.M3508_kit.status.output_speed_rpm;
+		steering_wheel->directive_part.encoder.feedback.speed = steering_wheel->directive_part.motor.M3508_kit.status.output_speed_rpm; // 这里测试时用的3508电机的角速度，懒得改回去了
 		briter_encoder_request_tatal_angle(&steering_wheel->directive_part.encoder.briter_encoder);
 		steering_wheel->directive_part.encoder.feedback.last_get_tick = steering_wheel->directive_part.encoder.feedback.get_tick;
 	#endif
@@ -198,11 +209,15 @@ STEERING_WHEEL_RETURN_T Steering_Wheel_PartStatusUpdate(steering_wheel_t *steeri
 
 STEERING_WHEEL_RETURN_T Steering_Wheel_StatusUpdate(steering_wheel_t *steering_wheel)
 {
-	Steering_Wheel_MotorAndEncoderFeedbackUpdate(steering_wheel);
-	Steering_Wheel_MotorAndEncoderStatusUpdate(steering_wheel);
-	Steering_Wheel_PartStatusUpdate(steering_wheel);
+	if (Steering_CheckHandleLegitimacy(steering_wheel) == STEERING_WHEEL_OK) 
+	{
+		Steering_Wheel_MotorAndEncoderFeedbackUpdate(steering_wheel);
+		Steering_Wheel_MotorAndEncoderStatusUpdate(steering_wheel);
+		Steering_Wheel_PartStatusUpdate(steering_wheel);
 
-	return STEERING_WHEEL_OK;
+		return STEERING_WHEEL_OK;
+	}
+	else return STEERING_WHEEL_ILLEGAL_HANDLE;
 }
 
 /**
@@ -213,43 +228,47 @@ STEERING_WHEEL_RETURN_T Steering_Wheel_StatusUpdate(steering_wheel_t *steering_w
 int16_t testt;
 STEERING_WHEEL_RETURN_T Steering_Wheel_MotorCommandUpdate(steering_wheel_t *steering_wheel)
 {
-	int32_t temp_err;
-	// 动力电机速度环PID
-	temp_err = steering_wheel->motion_part.motor.command.speed - steering_wheel->motion_part.motor.status.speed;
-	steering_wheel->motion_part.motor.command.torque = PID_Controller(&steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle, temp_err);
-	#if defined(MOTION_MOTOR_M3508)
-		steering_wheel->motion_part.motor.M3508_kit.command.torque = steering_wheel->motion_part.motor.command.torque;
-	#endif
-	// 转向电机角度环PID
-	temp_err = steering_wheel->directive_part.command.protocol_position - steering_wheel->directive_part.status.protocol_position;
-	
-	// 开启优劣弧优化模式
-	if (steering_wheel->parameter.arc_optimization == ENABLE_MINOR_ACR_OPTIMIZEATION)
+	if (Steering_CheckHandleLegitimacy(steering_wheel) == STEERING_WHEEL_OK) 
 	{
-		if (temp_err > PROTOCOL_POSITION_LSBS - temp_err)
-			temp_err = -(PROTOCOL_POSITION_LSBS - temp_err);
-		else if (temp_err < -(PROTOCOL_POSITION_LSBS + temp_err))
-			temp_err = (PROTOCOL_POSITION_LSBS + temp_err);
+		int32_t temp_err;
+		// 动力电机速度环PID
+		temp_err = steering_wheel->motion_part.motor.command.speed - steering_wheel->motion_part.motor.status.speed;
+		steering_wheel->motion_part.motor.command.torque = PID_Controller(&steering_wheel->motion_part.motor.PID_Handles.velocity_loop_handle, temp_err);
+		#if defined(MOTION_MOTOR_M3508)
+			steering_wheel->motion_part.motor.M3508_kit.command.torque = steering_wheel->motion_part.motor.command.torque;
+		#endif
+		// 转向电机角度环PID
+		temp_err = steering_wheel->directive_part.command.protocol_position - steering_wheel->directive_part.status.protocol_position;
 		
-	}
-	// 关闭优劣弧优化模式
-	else 
-	{
-		//if ()
-	}
-	
-	steering_wheel->directive_part.command.protocol_speed	= PID_Controller(&steering_wheel->directive_part.motor.PID_Handles.position_loop_handle, temp_err);
-	temp_err = steering_wheel->directive_part.command.protocol_speed - steering_wheel->directive_part.status.protocol_speed;
-	testt = temp_err;
-	steering_wheel->directive_part.motor.command.torque	= PID_Controller(&steering_wheel->directive_part.motor.PID_Handles.velocity_loop_handle, temp_err);
-	// 由于齿轮传动使得编码器转动方向为CW时，舵转动方向为CCW，反之亦然。所以要对称处理
-	if (steering_wheel->directive_part.encoder.parameter.encoder_directive_part_direction == DIRECTION_INVERSE)
-		steering_wheel->directive_part.motor.command.torque = steering_wheel->directive_part.motor.command.torque;
-	#if defined(DIRECTIVE_MOTOR_M3508)
-		steering_wheel->directive_part.motor.M3508_kit.command.torque = steering_wheel->directive_part.motor.command.torque;
-	#endif
+		// 开启优劣弧优化模式
+		if (steering_wheel->parameter.arc_optimization == ENABLE_MINOR_ACR_OPTIMIZEATION)
+		{
+			if (temp_err > PROTOCOL_POSITION_LSBS - temp_err)
+				temp_err = -(PROTOCOL_POSITION_LSBS - temp_err);
+			else if (temp_err < -(PROTOCOL_POSITION_LSBS + temp_err))
+				temp_err = (PROTOCOL_POSITION_LSBS + temp_err);
+			
+		}
+		// 关闭优劣弧优化模式
+		else 
+		{
+			//if ()
+		}
+		
+		steering_wheel->directive_part.command.protocol_speed	= PID_Controller(&steering_wheel->directive_part.motor.PID_Handles.position_loop_handle, temp_err);
+		temp_err = steering_wheel->directive_part.command.protocol_speed - steering_wheel->directive_part.status.protocol_speed;
+		testt = temp_err;
+		steering_wheel->directive_part.motor.command.torque	= PID_Controller(&steering_wheel->directive_part.motor.PID_Handles.velocity_loop_handle, temp_err);
+		// 由于齿轮传动使得编码器转动方向为CW时，舵转动方向为CCW，反之亦然。所以要对称处理
+		if (steering_wheel->directive_part.encoder.parameter.encoder_directive_part_direction == DIRECTION_INVERSE)
+			steering_wheel->directive_part.motor.command.torque = steering_wheel->directive_part.motor.command.torque;
+		#if defined(DIRECTIVE_MOTOR_M3508)
+			steering_wheel->directive_part.motor.M3508_kit.command.torque = steering_wheel->directive_part.motor.command.torque;
+		#endif
 
-	return STEERING_WHEEL_OK;
+		return STEERING_WHEEL_OK;
+	}
+	else return STEERING_WHEEL_ILLEGAL_HANDLE;
 }
 
 /*
@@ -271,13 +290,17 @@ STEERING_WHEEL_RETURN_T Steering_Wheel_CommandUpdate(steering_wheel_t *steering_
 
 STEERING_WHEEL_RETURN_T Steering_Wheel_CommandTransmit(steering_wheel_t *steering_wheel)
 {
-	#if defined(DIRECTIVE_MOTOR_M3508)
-		M3508_gear_set_torque_current_lsb(&steering_wheel->directive_part.motor.M3508_kit, steering_wheel->directive_part.motor.M3508_kit.command.torque, SEND_COMMAND_NOW);
-	#endif
-	#if defined(MOTION_MOTOR_M3508)
-		M3508_gear_set_torque_current_lsb(&steering_wheel->motion_part.motor.M3508_kit, steering_wheel->motion_part.motor.M3508_kit.command.torque, SEND_COMMAND_NOW);
-	#endif
-	
+	if (Steering_CheckHandleLegitimacy(steering_wheel) == STEERING_WHEEL_OK) 
+	{
+		#if defined(DIRECTIVE_MOTOR_M3508)
+			M3508_gear_set_torque_current_lsb(&steering_wheel->directive_part.motor.M3508_kit, steering_wheel->directive_part.motor.M3508_kit.command.torque, SEND_COMMAND_NOW);
+		#endif
+		#if defined(MOTION_MOTOR_M3508)
+			M3508_gear_set_torque_current_lsb(&steering_wheel->motion_part.motor.M3508_kit, steering_wheel->motion_part.motor.M3508_kit.command.torque, SEND_COMMAND_NOW);
+		#endif
+		return STEERING_WHEEL_OK;
+	}
+	else return STEERING_WHEEL_ILLEGAL_HANDLE;
 }
 
 STEERING_WHEEL_RETURN_T Steering_Wheel_SetProtocolPosition(steering_wheel_t *steering_wheel, uint16_t protocol_position)

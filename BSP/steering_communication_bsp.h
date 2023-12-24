@@ -21,19 +21,27 @@ typedef uint8_t (*steering_communication_rx_ptr)(void *, uint32_t , uint8_t[]); 
 
 typedef enum
 {
-	OFFSET_DIRECTIVE_POSITION_LOOP = 0x01,
+	OFFSET_DIRECTIVE_POSITION_LOOP = 0x01U,
 	OFFSET_DIRECTIVE_VELOCITY_LOOP,
 	OFFSET_MOTION_POSITION_LOOP,
 	OFFSET_MOTION_VELOCITY_LOOP
-}GET_PID_PARAMETER_LOOP_OFFSET_ID;
+}GET_PID_PARAMETER_LOOP_OFFSET_ID_t;
 
 typedef enum
 {
-	OFFSET_OUTPUT_TERM = 0x01,
+	OFFSET_OUTPUT_TERM = 0x01U,
 	OFFSET_PROPOSITIONAL_TERM,
 	OFFSET_INTEGRAL_TERM,
 	OFFSET_DIFFERENTIAL_TERM
-}GET_PID_PARAMETER_LIMIT_OFFSET_ID;
+}GET_PID_PARAMETER_LIMIT_OFFSET_ID_t;
+
+typedef enum
+{
+	OFFSET_MOTION_PART_RPM						= 0x01U,
+	OFFSET_DIRECTIVE_POSITION_LSB				= 0x02U,
+	OFFSET_MOTION_MOTOR_TORQUE_CURRENT_LSB		= 0x03U,
+	OFFSET_DIRECTIVE_MOTOR_TORQUE_CURRENT_LSB	= 0x04U,
+}SUBSCRIBE_CONTENT_X_OFFSET_ID_t;
 
 typedef struct
 {
@@ -43,6 +51,24 @@ typedef struct
 	/** customizable  **/
 	void *handle;
 } steering_communication_ctx_t;
+
+
+typedef struct
+{
+	int32_t *pValueAdd;
+	int32_t wValue;
+	SUBSCRIBE_CONTENT_X_OFFSET_ID_t	content_id;
+	uint16_t						subscribe_times;
+	uint16_t						subscribe_period;
+}subscribe_param_t;
+
+typedef struct
+{
+	uint16_t			remained_times;
+	uint16_t			remained_ticks;
+	uint8_t				subscribe_period_infinite_flag;
+	subscribe_param_t	param;
+}steering_communication_subscribe_list_unit_t;
 
 typedef struct
 {

@@ -18,9 +18,6 @@ extern "C" {
 #define PROTOCOL_POSITION_LSBS		8191	// 统一的角度分辨率。从零点开始CW方向，将角度等分为 PROTOCOL_POSITION_LSBS 份。
 #define MAXIMUM_STEERING_HANDLE_NUM	4
 
-/* CRITICAL Settings, NEVER CHANGE! ------------------------------------------*/
-#define STEERING_ILLEGAL_HANDLER NULL
-
 /* Includes ------------------------------------------------------------------*/
 
 /** @addtogroup stdint
@@ -44,7 +41,9 @@ extern "C" {
 typedef enum
 {
 	STEERING_WHEEL_OK,
-	STEERING_WHEEL_ERROR
+	STEERING_WHEEL_ERROR,
+	STEERING_WHEEL_WRONG_PARAM,
+	STEERING_WHEEL_ILLEGAL_HANDLE
 } STEERING_WHEEL_RETURN_T;
 
 typedef enum
@@ -82,7 +81,7 @@ typedef struct
 }steering_wheel_encoder_parameter_t;
 typedef struct
 {
-	int16_t protocol_position:13;
+	int16_t protocol_position;
 	int16_t protocol_speed;
 } steering_wheel_directive_part_command_t, steering_wheel_directive_part_status_t, steering_wheel_directive_part_feedback_t;
 
@@ -100,7 +99,7 @@ typedef struct
 
 typedef struct
 {
-	int16_t protocol_position:13;
+	int16_t protocol_position;
 	int16_t protocol_speed;
 } steering_wheel_command_t;
 typedef struct
@@ -173,6 +172,12 @@ STEERING_WHEEL_RETURN_T Steering_Wheel_SetProtocolSpeed(steering_wheel_t *steeri
 
 STEERING_WHEEL_RETURN_T Steering_Wheel_HandleInit(steering_wheel_t *steering_wheel);
 STEERING_WHEEL_RETURN_T Steering_Wheel_CommandTransmit(steering_wheel_t *steering_wheel);
+
+steering_wheel_t *Steering_FindSteeringHandle_via_CANID(uint8_t CANID);
+
+
+/* CRITICAL Settings, NEVER CHANGE! ------------------------------------------*/
+#define STEERING_ILLEGAL_HANDLE (steering_wheel_t*)NULL
 
 #ifdef __cplusplus
 }
