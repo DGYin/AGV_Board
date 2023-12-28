@@ -1,5 +1,7 @@
 #include "steering_wheel.h"
 #include "steering_communication.h"
+#include "arm_math.h"
+
 #if defined(STM32F105) | defined(STM32F407)
 	#include "can.h"
 #endif
@@ -69,6 +71,15 @@ STEERING_WHEEL_RETURN_T Steering_CheckHandleLegitimacy(steering_wheel_t *steerin
 			return STEERING_WHEEL_OK;
 		return STEERING_WHEEL_ILLEGAL_HANDLE; // 句柄找不到，不合法
 }
+
+steering_wheel_t *Steering_FindSteeringHandle_via_CANID(uint8_t CANID)
+{
+	for (int i=0; i<MAXIMUM_STEERING_HANDLE_NUM; i++)
+		if (steering_handle_list[i].CANID == CANID)
+			return steering_handle_list[i].handle;
+	return STEERING_ILLEGAL_HANDLE;
+}
+
 /**
  * @brief 初始化舵轮组件，包括电机、齿轮和编码器。
  * @param steering_wheel 舵轮的句柄
@@ -120,14 +131,6 @@ STEERING_WHEEL_RETURN_T Steering_Wheel_HandleInit(steering_wheel_t *steering_whe
 	if (Steering_HandleListAdd(steering_wheel))
 		return STEERING_WHEEL_ERROR;
 	return STEERING_WHEEL_OK;
-}
-
-steering_wheel_t *Steering_FindSteeringHandle_via_CANID(uint8_t CANID)
-{
-	for (int i=0; i<MAXIMUM_STEERING_HANDLE_NUM; i++)
-		if (steering_handle_list[i].CANID == CANID)
-			return steering_handle_list[i].handle;
-	return STEERING_ILLEGAL_HANDLE;
 }
 
 /**

@@ -19,3 +19,7 @@ void TASK_SCHEDULER(void)
 }
 
 
+void Num_Init(uint8_t *source)
+{
+	*source = 0x01U;
+}

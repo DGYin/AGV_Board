@@ -21,10 +21,7 @@
 #include "can.h"
 #include "tim.h"
 #include "gpio.h"
-#include "M3508.h"
-#include "M3508_gear.h"
-#include "briter_encoder.h"
-#include "SW_control_task.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -97,7 +94,6 @@ void canTX(void)
   * @brief  The application entry point.
   * @retval int
   */
-uint32_t tick_cnt;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -142,10 +138,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		// 目前还懒得丢到定时器中断里
+		// 目�?还懒得丢到定时器中断里
 		TASK_SCHEDULER();
 		HAL_Delay(4);
-		tick_cnt++;
+		//tick_cnt++;
   }
   /* USER CODE END 3 */
 }

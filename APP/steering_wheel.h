@@ -27,6 +27,10 @@ extern "C" {
 	#include <stdint.h>
 #endif
 
+#if defined(ARM_MATH_CM3) & ( __FPU_PRESENT==1)
+	#include "arm_math.h"
+#endif
+
 #include "pid_regulator.h"
 
 #if defined(DIRECTIVE_MOTOR_M3508) | defined(MOTION_MOTOR_M3508)
